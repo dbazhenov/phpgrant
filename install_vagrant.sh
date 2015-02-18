@@ -30,6 +30,8 @@ sudo apt-get install -y mariadb-server mariadb-client libmariadbclient-dev libma
 echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION;" | mysql -uroot -proot
 echo "FLUSH PRIVILEGES;" | mysql -uroot -proot
 
+sudo apt-get install optipng jpegoptim pngcrush pngquant gifsicle libjpeg-turbo-progs
+
 sudo apt-get build-dep php5
 sudo apt-get install -y php5 php5-dev php-pear autoconf automake curl build-essential libxslt1-dev re2c libxml2 libxml2-dev php5-cli bison libbz2-dev libreadline-dev
 sudo apt-get install -y libfreetype6 libfreetype6-dev libpng12-0 libpng12-dev libjpeg-dev libjpeg8-dev libjpeg8  libgd-dev libgd3 libxpm4 libltdl7 libltdl-dev
