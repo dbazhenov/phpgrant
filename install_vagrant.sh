@@ -19,13 +19,28 @@ sudo service apache2 restart
 sudo adduser vagrant www-data
 
 sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
+
+## MongoDB
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+sudo add-apt-repository 'deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse'
+
+## MariaDB
 sudo add-apt-repository 'deb http://mirror.timeweb.ru/mariadb/repo/10.1/ubuntu trusty main'
 sudo debconf-set-selections <<< 'mariadb-server mysql-server/root_password password root'
 sudo debconf-set-selections <<< 'mariadb-server mysql-server/root_password_again password root'
 
+## Nginx
+wget 'http://nginx.org/keys/nginx_signing.key'
+sudo apt-key add nginx_signing.key
+rm nginx_signing.key
+sudo add-apt-repository 'deb http://nginx.org/packages/ubuntu/ trusty nginx'
+sudo add-apt-repository 'deb-src http://nginx.org/packages/ubuntu/ trusty nginx'
+
 sudo apt-get update
 
+sudo apt-get install -y mongodb-org
 sudo apt-get install -y mariadb-server mariadb-client libmariadbclient-dev libmariadbd-dev
+sudo apt-get install -y nginx-full
 
 echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION;" | mysql -uroot -proot
 echo "FLUSH PRIVILEGES;" | mysql -uroot -proot
@@ -43,6 +58,13 @@ sudo apt-get install -y libmcrypt-dev libmcrypt4
 sudo apt-get install -y imagemagick libmagickcore5 libmagickwand5 libmagickwand-dev libcurl3-openssl-dev
 ln -s /usr/include/freetype2 /usr/include/freetype2/freetype
 
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+echo "export PATH=~/.composer/vendor/bin:$PATH" >> ~/.bashrc
+
+composer global require phpunit/phpunit
+composer global require phpunit/dbunit
+
 curl -L -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew
 chmod +x phpbrew
 sudo mv phpbrew /usr/bin/phpbrew
@@ -54,19 +76,17 @@ source /home/vagrant/.phpbrew/bashrc
 
 phpbrew lookup-prefix ubuntu
 
-sudo cp /vagrant/phpswitch /usr/bin/phpswitch
-sudo chmod +x /usr/bin/phpswitch
+phpbrew install 5.6.13 +default +fpm +curl +intl +mysql +gettext +opcache
+phpbrew install 5.3.29 +default +fpm +curl +intl +mysql +gettext +zip
 
-phpbrew install 5.6.4 +default +fpm +curl +intl +mcrypt +mysql +fileinfo +zip +filter +gettext +opcache +zip
-phpbrew install 5.3.29 +default +fpm +curl +intl +mcrypt +mysql +fileinfo +zip +filter +gettext +zip
-
-phpbrew clean 5.6.4
+phpbrew clean 5.6.13
 phpbrew clean 5.3.29
 
-phpbrew switch php-5.6.4
+phpbrew switch php-5.6.13
 
 phpbrew ext install xdebug stable
 phpbrew ext install opcache stable
 phpbrew ext install imagick stable
-phpbrew ext install APCu stable
+phpbrew ext install apcu latest
+phpbrew ext install mongo stable
 phpbrew ext install gd -- --with-freetype-dir=/usr/include/freetype2 --with-gd=shared,/usr --with-png-dir=/usr/local --with-jpeg-dir=/usr/local
